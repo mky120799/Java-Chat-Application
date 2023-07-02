@@ -7,21 +7,26 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.text.*;
+import java.net.*;
+import java.io.*;
 
 
-public class Server extends JFrame implements ActionListener {
+public class Server implements ActionListener {
     JTextField text;
     JPanel a1;
-    Box vertical=Box.createVerticalBox();
+    static Box vertical=Box.createVerticalBox();
+    static JFrame f=new JFrame();
+    static DataOutputStream dout;
+    
     Server(){
-        setLayout(null);
+        f.setLayout(null);
         // green panel code
         
         JPanel p1=new JPanel();
         p1.setBackground(new Color(7, 94,84));
         p1.setBounds(0,0,450,70);
         p1.setLayout(null);
-        add(p1);
+        f.add(p1);
         
         // back arrow code
         
@@ -95,12 +100,12 @@ public class Server extends JFrame implements ActionListener {
         
         a1=new JPanel();
         a1.setBounds(5,75,440,570);
-        add(a1);
+        f.add(a1);
         
         text=new JTextField();
         text.setBounds(5,655,310,40);
         text.setFont(new Font("SAN_SARIF",Font.PLAIN,16));
-        add(text);
+        f.add(text);
         
         // send button configure code
         
@@ -110,23 +115,26 @@ public class Server extends JFrame implements ActionListener {
         send.setForeground(Color.WHITE);
         send.addActionListener(this);
         send.setFont(new Font("SAN_SARIF",Font.PLAIN,16));
-        add(send);
+        f.add(send);
         
         
-        setSize(450,700);
-        setLocation(0,0);
+        f.setSize(450,700);
+        f.setLocation(0,0);
        
-        setUndecorated(true);
-        getContentPane().setBackground(Color.WHITE);
+        f.setUndecorated(true);
+        f.getContentPane().setBackground(Color.WHITE);
         
         
         
         
-        setVisible(true);
+        f.setVisible(true);
     }
     @Override
     public void actionPerformed(ActionEvent ae){
+    
+    try{
         
+    
      String out=text.getText();
 //     JLabel output=new JLabel(out);
      JPanel p2=formatLabel("<html><p style=\"width: 150px\">"+out+"</p></html>");
@@ -139,10 +147,13 @@ public class Server extends JFrame implements ActionListener {
      vertical.add(Box.createVerticalStrut(15));
      a1.add(vertical, BorderLayout.PAGE_START);
      text.setText("");
+     dout.writeUTF(out);
     
-     repaint();
-     invalidate();
-     validate();
+     f.repaint();
+     f.invalidate();
+     f.validate();
+    } catch(IOException e){
+    }
      
     }
     public static JPanel formatLabel(String out) {
@@ -168,5 +179,25 @@ public class Server extends JFrame implements ActionListener {
     public static void main(String[] args)
     {   
         new Server();
+        try{
+            
+            ServerSocket skt=new ServerSocket(6001);
+        while(true){
+                Socket s=skt.accept();
+            DataInputStream din=new DataInputStream(s.getInputStream());
+            dout=new DataOutputStream(s.getOutputStream());
+            
+            while(true){
+                String msg=din.readUTF();
+                JPanel panel=formatLabel(msg);
+                
+                JPanel left=new JPanel(new BorderLayout());
+                left.add(panel, BorderLayout.LINE_START);
+                vertical.add(left);
+                f.validate();
+            }
+         }
+        }catch(IOException e){
+        }
     }
 }
