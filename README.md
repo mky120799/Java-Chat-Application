@@ -31,7 +31,7 @@
   <img src="https://github.com/mky120799/Java-Chat-Application/blob/master/sample/client.png">
  
 </p>
-## Chatting Preview
+### Chatting Preview
 <br>
 <p>This is a sample screenshot of how chat will appear</p>
 <br>
